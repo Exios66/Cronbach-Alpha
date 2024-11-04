@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychometric Analysis Tools</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --success-color: #27ae60;
+            --warning-color: #f1c40f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tool-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tool-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .tool-section p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--secondary-color);
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .upload-area:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .upload-area p {
+            margin: 0.5rem 0;
+        }
+
+        .btn {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .results {
+            margin-top: 2rem;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .interpretation {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Psychometric Analysis Tools</h1>
+        <p>Reliable statistical analysis for psychological measurements</p>
+    </header>
+
+    <div class="container">
+        <section class="tool-section">
+            <h2>Cronbach's Alpha Calculator</h2>
+            <p>Upload your data file to calculate reliability statistics</p>
+            
+            <div class="upload-area" id="uploadArea">
+                <p>Drag and drop your CSV/Excel file here</p>
+                <p>or</p>
+                <input type="file" id="fileInput" accept=".csv,.xlsx" style="display: none;">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    Choose File
+                </button>
+            </div>
+
+            <div class="results" id="results">
+                <h3>Analysis Results</h3>
+                <div id="alphaResult"></div>
+                <div id="itemAnalysis"></div>
+                <div class="interpretation">
+                    <h4>Interpretation Guidelines</h4>
+                    <ul>
+                        <li>< 0.50: Unacceptable</li>
+                        <li>0.50 - 0.59: Poor</li>
+                        <li>0.60 - 0.69: Questionable</li>
+                        <li>0.70 - 0.79: Acceptable</li>
+                        <li>0.80 - 0.89: Good</li>
+                        <li>>= 0.90: Excellent</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const results = document.getElementById('results');
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#e74c3c';
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#3498db';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#3498db';
+                const files = e.dataTransfer.files;
+                handleFile(files[0]);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+
+            function handleFile(file) {
+                // Here you would typically send the file to your backend
+                // For demonstration, we'll show mock results
+                results.style.display = 'block';
+                document.getElementById('alphaResult').innerHTML = `
+                    <p>Overall Cronbach's Alpha: 0.85</p>
+                    <p>Number of items: 3</p>
+                    <p>Sample size: 4</p>
+                `;
+
+                document.getElementById('itemAnalysis').innerHTML = `
+                    <table>
+                        <tr>
+                            <th>Item</th>
+                            <th>Item-Total Correlation</th>
+                            <th>Alpha if Item Deleted</th>
+                        </tr>
+                        <tr>
+                            <td>Item 1</td>
+                            <td>0.75</td>
+                            <td>0.82</td>
+                        </tr>
+                        <tr>
+                            <td>Item 2</td>
+                            <td>0.68</td>
+                            <td>0.83</td>
+                        </tr>
+                        <tr>
+                            <td>Item 3</td>
+                            <td>0.71</td>
+                            <td>0.81</td>
+                        </tr>
+                    </table>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
