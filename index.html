@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psychometric Analysis Tools</title>
+    <meta name="description" content="Professional psychometric analysis tools for calculating Cronbach's Alpha and other reliability statistics">
+    <meta name="keywords" content="psychometrics, cronbach alpha, reliability, statistics, psychological measurement">
+    <meta name="author" content="Your Name">
+    <title>Psychometric Analysis Tools - Cronbach's Alpha Calculator</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -12,6 +16,12 @@
             --light-bg: #ecf0f1;
             --success-color: #27ae60;
             --warning-color: #f1c40f;
+            --error-color: #c0392b;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-radius: 8px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         * {
@@ -24,7 +34,10 @@
         body {
             background-color: var(--light-bg);
             line-height: 1.6;
-            color: #333;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -33,40 +46,56 @@
             padding: 2rem;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
             margin-bottom: 1rem;
             font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         .header p {
             font-size: 1.2rem;
             opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            flex: 1;
         }
 
         .tool-section {
             background: white;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             padding: 2rem;
             margin: 2rem 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--box-shadow);
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .tool-section:hover {
+            transform: translateY(-2px);
         }
 
         .tool-section h2 {
             color: var(--primary-color);
             margin-bottom: 1rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--light-bg);
+            padding-bottom: 0.5rem;
         }
 
         .tool-section p {
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 1.5rem;
+            font-size: 1.1rem;
         }
 
         .tools-grid {
@@ -79,33 +108,62 @@
         .tool-card {
             background: white;
             padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: all var(--transition-speed) ease;
         }
 
         .tool-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
         .upload-area {
             border: 2px dashed var(--secondary-color);
-            padding: 2rem;
+            padding: 2.5rem;
             text-align: center;
-            margin: 1rem 0;
-            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
             background: rgba(52, 152, 219, 0.05);
+            position: relative;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--secondary-color);
+            opacity: 0;
+            transition: opacity var(--transition-speed) ease;
+            border-radius: var(--border-radius);
+            z-index: -1;
         }
 
         .upload-area:hover {
             background-color: rgba(52, 152, 219, 0.1);
             border-color: var(--accent-color);
+            transform: scale(1.01);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--success-color);
+            background-color: rgba(39, 174, 96, 0.1);
         }
 
         .upload-area p {
             margin: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .upload-area .icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
         }
 
         .btn {
@@ -113,73 +171,225 @@
             color: white;
             padding: 0.8rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
             font-weight: 600;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 150px;
         }
 
         .btn:hover {
             background-color: #2980b9;
             transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .results {
             margin-top: 2rem;
             display: none;
             animation: fadeIn 0.5s ease;
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .results h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--light-bg);
+            padding-bottom: 0.5rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--box-shadow);
+            background: white;
         }
 
         th, td {
-            padding: 0.8rem;
+            padding: 1rem;
             border: 1px solid #ddd;
             text-align: left;
+            font-size: 0.95rem;
         }
 
         th {
             background-color: var(--primary-color);
             color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #f1f4f6;
         }
 
         .interpretation {
             background-color: #f9f9f9;
-            padding: 1rem;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .interpretation h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .interpretation ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .interpretation li {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
             border-radius: 4px;
-            margin-top: 1rem;
+            transition: background-color var(--transition-speed) ease;
+        }
+
+        .interpretation li:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: var(--error-color);
+            background-color: rgba(192, 57, 43, 0.1);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .tool-section {
+                padding: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        footer p {
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
     <header class="header">
         <h1>Psychometric Analysis Tools</h1>
-        <p>Reliable statistical analysis for psychological measurements</p>
+        <p>Professional statistical analysis tools for psychological measurements and research</p>
     </header>
 
     <div class="container">
         <section class="tool-section">
             <h2>Cronbach's Alpha Calculator</h2>
-            <p>Upload your data file to calculate reliability statistics</p>
+            <p>Upload your data file to calculate reliability statistics and perform detailed item analysis</p>
             
             <div class="upload-area" id="uploadArea">
+                <div class="icon">📊</div>
                 <p>Drag and drop your CSV/Excel file here</p>
                 <p>or</p>
-                <input type="file" id="fileInput" accept=".csv,.xlsx" style="display: none;">
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
                 <button class="btn" onclick="document.getElementById('fileInput').click()">
-                    Choose File
+                    <span>Choose File</span>
                 </button>
+                <p class="file-info" style="font-size: 0.9rem; color: var(--text-secondary);">
+                    Supported formats: CSV, Excel (.xlsx, .xls)
+                </p>
             </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Processing your data...</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
 
             <div class="results" id="results">
                 <h3>Analysis Results</h3>
@@ -188,79 +398,145 @@
                 <div class="interpretation">
                     <h4>Interpretation Guidelines</h4>
                     <ul>
-                        <li>< 0.50: Unacceptable</li>
-                        <li>0.50 - 0.59: Poor</li>
-                        <li>0.60 - 0.69: Questionable</li>
-                        <li>0.70 - 0.79: Acceptable</li>
-                        <li>0.80 - 0.89: Good</li>
-                        <li>>= 0.90: Excellent</li>
+                        <li>< 0.50: Unacceptable reliability</li>
+                        <li>0.50 - 0.59: Poor reliability</li>
+                        <li>0.60 - 0.69: Questionable reliability</li>
+                        <li>0.70 - 0.79: Acceptable reliability</li>
+                        <li>0.80 - 0.89: Good reliability</li>
+                        <li>>= 0.90: Excellent reliability</li>
                     </ul>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                        Note: These are general guidelines. The acceptable level of reliability may vary depending on the context and purpose of your measurement.
+                    </p>
                 </div>
             </div>
         </section>
     </div>
+
+    <footer>
+        <p>&copy; 2023 Psychometric Analysis Tools. All rights reserved.</p>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const uploadArea = document.getElementById('uploadArea');
             const fileInput = document.getElementById('fileInput');
             const results = document.getElementById('results');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
 
             uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                uploadArea.style.borderColor = '#e74c3c';
+                uploadArea.classList.add('drag-over');
             });
 
             uploadArea.addEventListener('dragleave', (e) => {
                 e.preventDefault();
-                uploadArea.style.borderColor = '#3498db';
+                uploadArea.classList.remove('drag-over');
             });
 
             uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
-                uploadArea.style.borderColor = '#3498db';
+                uploadArea.classList.remove('drag-over');
                 const files = e.dataTransfer.files;
-                handleFile(files[0]);
+                if (files.length > 0) {
+                    validateAndProcessFile(files[0]);
+                }
             });
 
             fileInput.addEventListener('change', (e) => {
-                handleFile(e.target.files[0]);
+                if (e.target.files.length > 0) {
+                    validateAndProcessFile(e.target.files[0]);
+                }
             });
 
-            function handleFile(file) {
-                // Here you would typically send the file to your backend
-                // For demonstration, we'll show mock results
-                results.style.display = 'block';
-                document.getElementById('alphaResult').innerHTML = `
-                    <p>Overall Cronbach's Alpha: 0.85</p>
-                    <p>Number of items: 3</p>
-                    <p>Sample size: 4</p>
-                `;
+            function validateAndProcessFile(file) {
+                const validTypes = [
+                    'text/csv',
+                    'application/vnd.ms-excel',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                ];
 
-                document.getElementById('itemAnalysis').innerHTML = `
-                    <table>
-                        <tr>
-                            <th>Item</th>
-                            <th>Item-Total Correlation</th>
-                            <th>Alpha if Item Deleted</th>
-                        </tr>
-                        <tr>
-                            <td>Item 1</td>
-                            <td>0.75</td>
-                            <td>0.82</td>
-                        </tr>
-                        <tr>
-                            <td>Item 2</td>
-                            <td>0.68</td>
-                            <td>0.83</td>
-                        </tr>
-                        <tr>
-                            <td>Item 3</td>
-                            <td>0.71</td>
-                            <td>0.81</td>
-                        </tr>
-                    </table>
-                `;
+                if (!validTypes.includes(file.type)) {
+                    showError('Please upload a valid CSV or Excel file.');
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    showError('File size must be less than 5MB.');
+                    return;
+                }
+
+                processFile(file);
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+
+            function processFile(file) {
+                loading.style.display = 'block';
+                results.style.display = 'none';
+                errorMessage.style.display = 'none';
+
+                // Simulate file processing
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    results.style.display = 'block';
+                    
+                    // Display mock results
+                    document.getElementById('alphaResult').innerHTML = `
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">Overall Statistics</h4>
+                            <p><strong>Cronbach's Alpha:</strong> 0.85</p>
+                            <p><strong>Number of items:</strong> 3</p>
+                            <p><strong>Sample size:</strong> 4</p>
+                            <p><strong>Standard Error of Measurement:</strong> 0.12</p>
+                        </div>
+                    `;
+
+                    document.getElementById('itemAnalysis').innerHTML = `
+                        <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Item Analysis</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Item-Total Correlation</th>
+                                    <th>Alpha if Item Deleted</th>
+                                    <th>Mean</th>
+                                    <th>SD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Item 1</td>
+                                    <td>0.75</td>
+                                    <td>0.82</td>
+                                    <td>3.5</td>
+                                    <td>1.2</td>
+                                </tr>
+                                <tr>
+                                    <td>Item 2</td>
+                                    <td>0.68</td>
+                                    <td>0.83</td>
+                                    <td>3.2</td>
+                                    <td>1.1</td>
+                                </tr>
+                                <tr>
+                                    <td>Item 3</td>
+                                    <td>0.71</td>
+                                    <td>0.81</td>
+                                    <td>3.8</td>
+                                    <td>0.9</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                }, 1500);
             }
         });
     </script>
