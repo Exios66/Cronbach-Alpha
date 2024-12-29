@@ -1,7 +1,6 @@
 # Cronbach-Alpha
 
  RUST - Psychometrics
-I'll help you create a comprehensive README.md file for your Cronbach-Alpha project. Here's a detailed version:
 
 ## Overview
 
