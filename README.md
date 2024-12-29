@@ -1,8 +1,8 @@
 # Cronbach-Alpha
 
- RUST - Psychometrics
+ ## RUST - Psychometrics
 
-## Overview
+### Overview
 
 Cronbach's Alpha is one of the most widely used measures of reliability in psychometric assessment and research. This implementation provides a robust and efficient way to calculate the coefficient using Rust's performance capabilities.
 
@@ -77,14 +77,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## References
 
 - Cronbach, L. J. (1951). Coefficient alpha and the internal structure of tests. Psychometrika, 16(3), 297-334.
+
 - Guidelines for reporting reliability and internal consistency statistics in psychological research
 
 ## Author
 
-[Your Name]
+Jack J. Burleson
 
 ## Acknowledgments
 
 - The Rust community
 - Contributors to psychometric research
-- [Any other acknowledgments]
+
